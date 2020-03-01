@@ -36,11 +36,11 @@ for alpha in list(range(0,900,900//4)):
     hdul = fits.open(fits_filepath)
     image = np.float64(hdul[0].data)
     x_pixels = image.shape[0] * u.pix
-    fwhm = 16.
+    fwhm = 40.
     
     image -= np.median(image)
     bkg_sigma = mad_std(image)
-    daofind = DAOStarFinder(fwhm=fwhm, threshold=10.*bkg_sigma)  
+    daofind = DAOStarFinder(fwhm=fwhm, threshold=6.*bkg_sigma)  
     sources = daofind(image)  
     for col in sources.colnames:  
         sources[col].info.format = '%.8g'  # for consistent table output
