@@ -47,12 +47,12 @@ for setno in range(1,6):
         image = np.float64(hdul[0].data)
         hdul.close()
         x_pixels = image.shape[0] * unit.pix
-        fwhm = 30.
-        r = 30
+        fwhm = 26.
+        r = 20
         bkgnd[alpha] = np.median(image)
         image -= bkgnd[alpha]
         bkg_sigma = mad_std(image)
-        daofind = DAOStarFinder(fwhm=fwhm, threshold=6.*bkg_sigma)  
+        daofind = DAOStarFinder(fwhm=fwhm, threshold=5.*bkg_sigma)  
         sources = daofind(image)  
         for col in sources.colnames:  
             sources[col].info.format = '%.8g'  # for consistent table output
