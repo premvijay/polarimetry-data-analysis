@@ -24,6 +24,8 @@ r = 20
 
 fits_filenames = {}
 R = {}
+No = {}
+Ne = {}
 Io = {}
 Ie = {}
 bkgnd = {}
@@ -43,6 +45,8 @@ sig_theta = {}
 for sn in range(1,6):
     fits_filenames[sn] = {}
     R[sn] = {}
+    No[sn] = {}
+    Ne[sn] = {}
     Io[sn] = {}
     Ie[sn] = {}
     bkgnd[sn] = {}
@@ -63,8 +67,9 @@ for sn in range(1,6):
         hdul = fits.open(fits_filepath)
         
         image = np.float64(hdul[0].data)
+        x_pixels = hdul[0].header['NAXIS1'] * unit.pix
+        T = hdul[0].header['EXPTIME']
         hdul.close()
-        x_pixels = image.shape[0] * unit.pix
 
         bkgnd[sn][alpha] = np.median(image)
         image -= bkgnd[sn][alpha]
@@ -85,10 +90,12 @@ for sn in range(1,6):
         photo_apertures = aperture_photometry(image, apertures)
 #        print(photo_apertures)
         
-        Io[sn][alpha] = np.max(photo_apertures['aperture_sum'][photo_apertures['xcenter']<x_pixels/2])
-        Ie[sn][alpha] = np.max(photo_apertures['aperture_sum'][photo_apertures['xcenter']>x_pixels/2])
+        Ne[sn][alpha] = np.max(photo_apertures['aperture_sum'][photo_apertures['xcenter']<x_pixels/2]) / gain
+        No[sn][alpha] = np.max(photo_apertures['aperture_sum'][photo_apertures['xcenter']>x_pixels/2]) / gain
         
-    
+        Ie[sn][alpha] = Ne[sn][alpha] / T
+        Io[sn][alpha] = No[sn][alpha] / T
+        
     
     K[sn] = (Io[sn][0]*Io[sn][225]*Io[sn][450]*Io[sn][675])**.25 / (Ie[sn][0]*Ie[sn][225]*Ie[sn][450]*Ie[sn][675])**.25
     
@@ -98,7 +105,7 @@ for sn in range(1,6):
         
         Io[sn][alpha] += bkgnd[sn][alpha] * np.pi * r**2
         Ie[sn][alpha] += bkgnd[sn][alpha] * np.pi * r**2
-        sig_R[sn][alpha] = ( (4*gain * Io[sn][alpha] * Ie[sn][alpha]) / (Io[sn][alpha] + Ie[sn][alpha])**3 )**.5
+        sig_R[sn][alpha] = ( (4* No[sn][alpha] * Ne[sn][alpha]) / (No[sn][alpha] + Ne[sn][alpha])**3 )**.5
         
     q[sn] = R[sn][0]    
     u[sn] = R[sn][225]
@@ -139,9 +146,9 @@ sig_p_bar = varinv_p_bar**-.5
 sig_theta_bar = varinv_theta_bar**-.5
 
 
+print("Amount of polarisation, p = {1:.3} +/- {2:.3}".format(sn,p_bar,sig_p_bar) )
 
-
-
+print("Angle of polarisation, theta = {1:.3} +/- {2:.3} deg".format(sn,theta_bar,sig_theta_bar) )
 
 
 
