@@ -15,7 +15,8 @@ from astropy.stats import mad_std
 
 
 fits_dir = "C:\\Users\\premv\\Documents\\acad\\gradschool\\term-3\\Astrotech-I\\Experiments\\Exp-1\\Data\\"
-fits_subdir = "Polarized\\"
+#fits_subdir = "Polarized\\"
+fits_subdir = "Unpolarized\\"
 
 
 gain = 2.5
@@ -54,19 +55,15 @@ for sn in range(1,6):
     sig_R[sn] = {}
     
     
-    for alpha in range(0,900,900//4):
-    #alpha = 0
-        
+    for alpha in range(0,900,900//4):        
         fits_filenames[sn][alpha] = "Set{0}_{1}.FIT".format(sn, alpha)
         fits_filepath = fits_dir + fits_subdir + fits_filenames[sn][alpha]
-        
         #gc = aplpy.FITSFigure(fits_file)
-        
         #gc.show_grayscale()
         
         hdul = fits.open(fits_filepath)
-        
         image = np.float64(hdul[0].data)
+        
         x_pixels = hdul[0].header['NAXIS1'] * unit.pix
         T = hdul[0].header['EXPTIME']
         hdul.close()
@@ -103,8 +100,8 @@ for sn in range(1,6):
         Ie[sn][alpha] *= K[sn]
         R[sn][alpha] = (Io[sn][alpha]-Ie[sn][alpha])/(Io[sn][alpha]+Ie[sn][alpha])
         
-        Io[sn][alpha] += bkgnd[sn][alpha] * np.pi * r**2
-        Ie[sn][alpha] += bkgnd[sn][alpha] * np.pi * r**2
+        No[sn][alpha] += bkgnd[sn][alpha] * np.pi * r**2 / gain
+        Ne[sn][alpha] += bkgnd[sn][alpha] * np.pi * r**2 / gain
         sig_R[sn][alpha] = ( (4* No[sn][alpha] * Ne[sn][alpha]) / (No[sn][alpha] + Ne[sn][alpha])**3 )**.5
         
     q[sn] = R[sn][0]    
@@ -115,13 +112,15 @@ for sn in range(1,6):
     
     p[sn] = (q[sn]**2 + u[sn]**2)**.5
     theta[sn] = np.arctan2(u[sn],q[sn])/2 * 180 / np.pi
+    if theta[sn] < 0:
+        theta[sn] += 180
     
     sig_p[sn] = ((q[sn]**2* sig_q[sn]**2 + u[sn]**2 * sig_u[sn]**2) / (q[sn]**2 + u[sn]**2))**.5
     sig_theta[sn] = ( (q[sn]**2* sig_u[sn]**2 + u[sn]**2 * sig_q[sn]**2) / (q[sn]**2 + u[sn]**2)**2 )**.5 / 2 * 180 / np.pi
     
     
     print ("Degree of polarisation in set {0}, p = {1:.3} +/- {2:.3}".format(sn,p[sn],sig_p[sn]) )
-    print ("Angle of polarisation in set {0}, theta = {1:.3} +/- {2:.3}".format(sn,theta[sn],sig_theta[sn]) )
+    print ("Angle of polarisation in set {0}, theta = {1:.4} +/- {2:.3}".format(sn,theta[sn],sig_theta[sn]) )
 
 
 
@@ -148,7 +147,7 @@ sig_theta_bar = varinv_theta_bar**-.5
 
 print("Degree of polarisation, p = {1:.3} +/- {2:.3}".format(sn,p_bar,sig_p_bar) )
 
-print("Angle of polarisation, theta = {1:.3} +/- {2:.3} deg".format(sn,theta_bar,sig_theta_bar) )
+print("Angle of polarisation, theta = {1:.4} +/- {2:.3} deg".format(sn,theta_bar,sig_theta_bar) )
 
 
 
