@@ -120,7 +120,7 @@ for sn in range(1,6):
     sig_theta[sn] = ( (q[sn]**2* sig_u[sn]**2 + u[sn]**2 * sig_q[sn]**2) / (q[sn]**2 + u[sn]**2)**2 )**.5 / 2 * 180 / np.pi
     
     
-    print ("Amount of polarisation in set {0}, p = {1:.3} +/- {2:.3}".format(sn,p[sn],sig_p[sn]) )
+    print ("Degree of polarisation in set {0}, p = {1:.3} +/- {2:.3}".format(sn,p[sn],sig_p[sn]) )
     print ("Angle of polarisation in set {0}, theta = {1:.3} +/- {2:.3}".format(sn,theta[sn],sig_theta[sn]) )
 
 
@@ -146,7 +146,7 @@ sig_p_bar = varinv_p_bar**-.5
 sig_theta_bar = varinv_theta_bar**-.5
 
 
-print("Amount of polarisation, p = {1:.3} +/- {2:.3}".format(sn,p_bar,sig_p_bar) )
+print("Degree of polarisation, p = {1:.3} +/- {2:.3}".format(sn,p_bar,sig_p_bar) )
 
 print("Angle of polarisation, theta = {1:.3} +/- {2:.3} deg".format(sn,theta_bar,sig_theta_bar) )
 
